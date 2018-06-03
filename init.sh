@@ -10,3 +10,4 @@ nvm use $(cat ./.nvmrc)
 npm install
 npm rebuild
 nvm use default
+node_modules/typings/dist/bin.js i
