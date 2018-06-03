@@ -1,0 +1,30 @@
+{
+  "name": "http-tester",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node.sh index.js",
+    "clean": "rm -rf node_modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@git.compilenix.org:2225/Compilenix/http-tester.git"
+  },
+  "keywords": [
+    "http",
+    "tester",
+    "header"
+  ],
+  "author": "compilenix@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "standard": "^11.0.1"
+  }
+}
