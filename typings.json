@@ -4,5 +4,6 @@
   },
   "dependencies": {
     "punycode": "registry:npm/punycode#2.1.0+20170212100442"
-  }
+  },
+  "main": "index.d.ts"
 }

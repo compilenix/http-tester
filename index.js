@@ -2,15 +2,16 @@ const http = require('http')
 const https = require('https')
 const http2 = require('http2')
 const { URL } = require('url')
+const path = require('path')
 
 const fs = require('fs-extra')
 const moment = require('moment')
 const Slack = require('slack-node')
 const punycode = require('./node_modules/punycode')
 
-// if (!fs.existsSync('./config.js')) {
-fs.copySync('./config.example.js', './config.js')
-// }
+if (!fs.existsSync('./config.js')) {
+  fs.copySync('./config.example.js', './config.js')
+}
 
 let config = require('./config.js')
 let slack = new Slack()
@@ -90,46 +91,123 @@ function addMessage (message, method, uri, level = 'error') {
   })
 }
 
-function checkHeaders (headers) {
-}
-
-function checkBody (body) {
-}
-
 async function run () {
   for (let index = 0; index < config.tasks.length; index++) {
     const task = config.tasks[index]
-    let headers
-    let body
-    let isEncrypted = false
-
     if (!task.url) {
       addMessage(`\`uri\` is not present on task (index ${index}): \`\`\`${JSON.stringify(task, null, 4)}\`\`\``, task.method, task.url)
+      continue
     }
+
     const url = new URL(task.url)
+    let isEncrypted = url.protocol === 'https:'
+    let method = task.method || config.defaultMethod || 'GET'
 
-    if (task.url.startsWith('https')) {
-      isEncrypted = true
+    if (task.body && !task.method) method = 'POST'
+
+    if (task.body && typeof task.body !== 'string') {
+      /** @type {path.ParsedPath} */
+      let parsedPath = task.body
+      task.body = await fs.readFile(`${parsedPath.dir}${path.sep}${parsedPath.base}`, { encoding: 'utf8' })
     }
 
-    switch (task.protocolVersion) {
-      case '1.0':
-      case '1.1':
-        if (isEncrypted) {
-        } else {
-          let req = new http.ClientRequest(url, res => {
+    await new Promise(async (resolve, reject) => {
+      switch (task.protocolVersion || config.defaultProtocolVersion || '1.1') {
+        case '1.0':
+        case '1.1':
+          if (isEncrypted) {
+            // TODO: handle
+            console.error(new Error('Not implemented'))
+          } else {
+            let rawData = ''
+            let req = new http.ClientRequest({
+              timeout: task.connectionTimeoutMs || config.defaultConnectionTimeoutMs || 2500,
+              href: url.href,
+              method: method,
+              host: url.host,
+              hostname: url.hostname,
+              pathname: url.pathname,
+              search: url.search,
+              hash: url.hash
+            }, res => {
+              res.setEncoding('utf8')
+              res.on('error', error => {
+                if (task.onError) {
+                  task.onError(error)
+                } else {
+                  console.dir(error)
+                }
+                resolve()
+              })
+              if (task.onHeaders) {
+                task.onHeaders(res)
+              }
 
-          })
-          req.setHeader()
-        }
-        break
-      case '2.0':
-        // TODO: handle
-        break
-      default:
-        // TODO: error
-        break
-    }
+              console.log(`${task.url} -> ${res.statusCode}`)
+
+              if (res.statusCode >= 400) addMessage(`Status code does not indicate success: ${res.statusCode}`, task.method || config.defaultMethod, task.url)
+
+              if (task.fetchBody) {
+                res.on('data', chunk => {
+                  rawData += chunk
+                })
+                res.on('end', () => {
+                  if (task.onBody) task.onBody(rawData)
+                  resolve()
+                })
+              } else {
+                res.on('end', () => {
+                  resolve()
+                })
+                res.emit('end')
+              }
+            })
+
+            req.setNoDelay(true)
+            req.setSocketKeepAlive(false)
+            req.setTimeout(task.connectionTimeoutMs || config.defaultConnectionTimeoutMs || 2500)
+
+            if (config.defaultHeaders && config.defaultHeaders.length > 0) {
+              for (let index = 0; index < config.defaultHeaders.length; index++) {
+                const header = config.defaultHeaders[index]
+                req.setHeader(header.key, header.value)
+              }
+            }
+
+            if (task.headers && task.headers.length > 0) {
+              for (let index = 0; index < config.defaultHeaders.length; index++) {
+                const header = config.defaultHeaders[index]
+                req.setHeader(header.key, header.value)
+              }
+            }
+
+            req.on('error', error => {
+              if (task.onError) task.onError(error)
+              resolve()
+            })
+            // @ts-ignore here is task.body.length always "falsy" or a string
+            if (task.body && task.body.length > 0) {
+              try {
+                req.write(task.body)
+              } catch (error) {
+                console.dir(error)
+                // TODO: handle?
+              }
+            } else {
+              req.end()
+            }
+          }
+          break
+        case '2.0':
+          console.error(new Error('Not implemented'))
+          // TODO: handle
+          break
+        default:
+          console.error(new Error('Not implemented'))
+          // TODO: error
+          break
+      }
+    })
   }
 }
 
