@@ -1,7 +1,4 @@
 {
-  "globalDependencies": {
-    "node": "registry:dt/node#7.0.0+20170322231424"
-  },
   "dependencies": {
     "punycode": "registry:npm/punycode#2.1.0+20170212100442"
   },
