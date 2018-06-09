@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 const path = require('path')
-const http = require('http') // eslint-disable-line no-unused-vars
+const http = require('http')
+/* eslint-enable no-unused-vars */
 
 class Config {
   constructor () {
