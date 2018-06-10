@@ -30,9 +30,11 @@
     "@types/node": "^10.3.2"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "fs-extra": "^6.0.1",
     "moment": "^2.22.2",
     "punycode": "^2.1.1",
-    "slack-node": "^0.1.8"
+    "slack-node": "^0.1.8",
+    "stream-to-string": "^1.1.0"
   }
 }
