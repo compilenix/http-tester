@@ -1,15 +1,13 @@
 const http = require('http')
 const https = require('https')
-const http2 = require('http2')
 const { URL } = require('url')
 const path = require('path')
 const zlib = require('zlib')
 const { Readable } = require('stream')
 
 const fs = require('fs-extra')
-const moment = require('moment')
 const Slack = require('slack-node')
-const punycode = require('./node_modules/punycode')
+// const punycode = require('./node_modules/punycode')
 const cheerio = require('cheerio')
 const StreamToString = require('stream-to-string')
 
@@ -21,10 +19,6 @@ let config = require('./config.js')
 let slack = new Slack()
 /** @type {{message: string, ts: number, color: string}[]} */
 let messagesToSend = []
-
-function uniqueArray (/** @type {any[]} */ arr) {
-  return Array.from(new Set(arr))
-}
 
 /**
  * @param {number} ms
@@ -313,7 +307,6 @@ async function run () {
           break
         case '2.0':
           console.error(new Error('Not implemented'))
-          // TODO: handle
           break
         default:
           console.error(new Error('Not implemented'))
