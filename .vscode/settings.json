@@ -1,0 +1,11 @@
+{
+	"editor.tabSize": 4,
+	"editor.useTabStops": false,
+	"editor.insertSpaces": true,
+	"editor.cursorBlinking": "smooth",
+	"telemetry.enableTelemetry": false,
+	"telemetry.enableCrashReporter": false,
+	"files.trimTrailingWhitespace": true,
+	"files.encoding": "utf8",
+	"javascript.implicitProjectConfig.checkJs": true,
+}
