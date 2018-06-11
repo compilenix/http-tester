@@ -6,8 +6,7 @@
 * profit!
 
 ## A simple task
-The following simple example task specifies the only required property: `url`. \
-Any default settings, values and policies will be applied (see `config.js`).
+The following simple example task specifies the only required property: `url`. Any default settings, values and policies will be applied (see `config.js`).
 
 ```js
 this.tasks = [
@@ -19,8 +18,7 @@ this.tasks = [
 ## A complete task explained
 The following example describes every possible task property.
 
-Note that you are not required to set all properties, just set / change which \
-you want to differ from the default behavior.
+Note that you are not required to set all properties, just set / change which you want to differ from the default behavior.
 
 ```js
 this.tasks = [
