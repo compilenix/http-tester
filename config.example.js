@@ -30,40 +30,76 @@ class Config {
     this.defaultConnectionTimeoutMs = 10000
     this.defaultProtocolVersion = '1.1'
 
-    /** @type {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}[]} */
+    /**
+     * @type {{ name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}[]}
+     */
+    this.headerPolicies = [{
+      name: 'IsSuccessStatusCode',
+      /**
+       * @function
+       * @param {http.IncomingMessage} res
+       * @returns {boolean}
+       */
+      validate: res => {
+        return res.statusCode && res.statusCode < 400
+      },
+      /**
+       * @function
+       * @param {http.IncomingMessage} res
+       * @returns {string}
+       */
+      failureMessage: res => `Status code does not indicate success: ${res.statusCode}`
+    }]
+
+    this.defaultHeaderPolicies = [
+      'IsSuccessStatusCode'
+    ]
+
+    /**
+     * @type {{name: string, validate: (raw: string, $: CheerioStatic) => boolean, failureMessage: (raw: string, $: CheerioStatic) => string}[]}
+     */
+    this.defaultBodyPolicies = [{
+      name: 'IsGreaterThan3k',
+      /**
+       * @function
+       * @param {string} raw
+       * @param {CheerioStatic} $
+       * @returns {boolean}
+       */
+      validate: (raw, $) => {
+        return raw.length >= 3072
+      },
+      /**
+       * @function
+       * @param {string} raw
+       * @param {CheerioStatic} $
+       * @returns {string}
+       */
+      failureMessage: (raw, $) => `Response body is not greater than 3k, we got ${raw.length} bytes.`
+    }]
+
+    this.defaultHeaderPolicies = [
+      'IsGreaterThan3k'
+    ]
+
+    /** @type {Task[]} */
     this.tasks = [
-      // { url: 'http://www.microsoft.com' }, // minimal required definition
-      {
+      // { url: 'http://www.microsoft.com' }, // minimal example
+      { // full example
         url: 'https://compilenix.org',
-        protocolVersion: '1.1',
         headers: [
-          // - these headers does overwrite default headers
+          // - these headers do overwrite default headers
           // - if a header is 'null' or 'undefined' it will be removed
-          { key: 'Upgrade-Insecure-Requests', value: null }
+          {
+            key: 'Upgrade-Insecure-Requests',
+            value: null
+          }
         ],
-        // body: path.parse('./LICENSE'),
         fetchBody: true,
+        bodyPolicies: [{ 'IsGreaterThan3k': false }],
         /**
          * @function
-         * @param {http.IncomingMessage} res
-         * @returns {boolean} true indicates sucess
-         */
-        onHeaders: res => {
-          console.dir(res.headers)
-          return true
-        },
-        /**
-         * @function
-         * @param {string} raw contains the parsed response body
-         * @param {CheerioStatic} $
-         * @see https://cheerio.js.org/
-         */
-        onBody: (res, $) => {
-          console.dir(res)
-          console.dir($)
-        },
-        /**
-         * @function
+         * @description here you handle any kind of error
          * @param {Error} error
          */
         onError: error => {
