@@ -10,7 +10,7 @@ interface Task {
   onBody?: (raw: string, $: CheerioStatic) => string[] | void,
   onError?: (error: Error) => void,
   fetchBody?: boolean,
-  headerPolicies?: Array<string | { [x: string]: boolean }>,
-  bodyPolicies?: Array<string | { [x: string]: boolean }>,
+  headerPolicies?: { name: string, enabled: boolean }[],
+  bodyPolicies?: { name: string, enabled: boolean }[],
   connectionTimeoutMs?: number
 }

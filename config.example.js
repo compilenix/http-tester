@@ -1,3 +1,5 @@
+/// <reference path="index.d.ts" />
+
 /* eslint-disable no-unused-vars */
 const path = require('path')
 const http = require('http')
@@ -8,6 +10,7 @@ class Config {
   constructor () {
     this.version = 1
 
+    this.enableConsoleLog = true
     this.enableSlack = true
     this.slackWebHookUri = 'https://hooks.slack.com/services/xxxxxx/xxxxxx/xxxxxx'
     this.slackChannel = ''
@@ -58,7 +61,7 @@ class Config {
     /**
      * @type {{name: string, validate: (raw: string, $: CheerioStatic) => boolean, failureMessage: (raw: string, $: CheerioStatic) => string}[]}
      */
-    this.defaultBodyPolicies = [{
+    this.bodyPolicies = [{
       name: 'IsGreaterThan3k',
       /**
        * @function
@@ -78,7 +81,7 @@ class Config {
       failureMessage: (raw, $) => `Response body is not greater than 3k, we got ${raw.length} bytes.`
     }]
 
-    this.defaultHeaderPolicies = [
+    this.defaultBodyPolicies = [
       'IsGreaterThan3k'
     ]
 
@@ -86,7 +89,7 @@ class Config {
     this.tasks = [
       // { url: 'http://www.microsoft.com' }, // minimal example
       { // full example
-        url: 'https://compilenix.org',
+        url: 'https://blog.compilenix.org/code/723',
         headers: [
           // - these headers do overwrite default headers
           // - if a header is 'null' or 'undefined' it will be removed
@@ -96,7 +99,7 @@ class Config {
           }
         ],
         fetchBody: true,
-        bodyPolicies: [{ 'IsGreaterThan3k': false }],
+        bodyPolicies: [{ name: 'IsGreaterThan3k', enabled: false }],
         /**
          * @function
          * @description here you handle any kind of error

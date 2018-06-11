@@ -33,16 +33,32 @@ this.tasks = [
     //method: 'POST' // POST is implied by the `body` property
     body: path.parse('./LICENSE'),
     fetchBody: true,
-    headerPolicies: [{ 'IsSuccessStatusCode': false }],
-    bodyPolicies: [{ 'IsGreaterThan3k': false }],
+    headerPolicies: [{ name: 'IsSuccessStatusCode', enabled: false }],
+    bodyPolicies: [{ name: 'IsGreaterThan3k', enabled: false }],
+    /**
+     * @function
+     * @param {http.IncomingMessage} res
+     * @returns {string[] | void}
+     */
     onHeaders: res => {
       // console.dir(res.headers)
       return {isSuccessStatusCode: true}
     },
+    /**
+     * @function
+     * @param {string} raw
+     * @param {CheerioStatic} $
+     * @returns {string[] | void}
+     */
     onBody: (res, $) => {
       // console.dir(res)
       // console.dir($)
     },
+    /**
+     * @function
+     * @description here you handle any kind of error
+     * @param {Error} error
+     */
     onError: error => {
       console.dir(error)
     }
