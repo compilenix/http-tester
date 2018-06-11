@@ -73,6 +73,7 @@ async function sendReport () {
  * @param {string} message
  * @param {string} method
  * @param {string} uri
+ * @param {string} level
  */
 function addMessage (message, method, uri, level = 'error') {
   let color = '#d50200' // error
@@ -90,22 +91,59 @@ function addMessage (message, method, uri, level = 'error') {
 }
 
 /**
+ * @param {string[] | void} messages
+ * @param {Task} task
+ * @param {string} level
+ */
+function addMessages (messages, task, level = 'error') {
+  if (!messages) return
+  if (messages.length === 0) return
+
+  for (let index = 0; index < messages.length; index++) {
+    const message = messages[index]
+    addMessage(message, task.method || 'GET', task.url, level)
+  }
+}
+
+/**
  * @param {http.IncomingMessage} res
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- * @param {function} resolve
- * @param {function} reject
+ * @param {Task} task
+ * @param {(value?: any) => void} resolve
+ * @param {(value?: any) => void} reject
  */
 function handleHttpClientResponse (res, task, resolve, reject) {
   setupResolveResponseError(res, task, resolve)
+  // TODO: remove or do central logging
   console.log(`${task.url} -> ${res.statusCode}`)
-  if (invokeOnHeadersCallback(res, task) && res.statusCode >= 400) addMessage(`Status code does not indicate success: ${res.statusCode}`, task.method || config.defaultMethod, task.url)
+  if (task.onHeaders) {
+    addMessages(task.onHeaders(res), task, task.url)
+  }
   setupResolveResponseBody(res, task, resolve)
 }
 
 /**
+ * @param {http.IncomingMessage} res
+ * @param {Task} task
+ */
+function validateResponseHeaderPolicies (res, task) {
+  const defaultPoliciesToValidate = config.defaultHeaderPolicies.filter(x => !task.headerPolicies.find(y => y === x || y.valueOf() === true))
+  for (let index = 0; index < config.defaultHeaderPolicies.length; index++) {
+    const defaultHeaderPolicyName = config.defaultHeaderPolicies[index]
+
+    if (!defaultPoliciesToValidate.some(x => x === defaultHeaderPolicyName)) continue
+
+    if (config.headerPolicies[defaultHeaderPolicyName]) {
+      /** @type {{ name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}} */
+      const defaultHeaderPolicy = config.headerPolicies[defaultHeaderPolicyName]
+      if (!defaultHeaderPolicy.validate(res)) addMessage(defaultHeaderPolicy.failureMessage(res), task.method || 'GET', task.url)
+    }
+  }
+}
+
+/**
  * @param {http.ClientRequest} req
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- * @param {function} resolve
+ * @param {Task} task
+ * @param {(value?: any) => void} resolve
  */
 function setupRequest (req, task, resolve) {
   req.setNoDelay(true)
@@ -139,8 +177,8 @@ function setupRequest (req, task, resolve) {
 
 /**
  * @param {http.ClientRequest} req
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- * @param {function} resolve
+ * @param {Task} task
+ * @param {(value?: any) => void} resolve
  */
 function setupRequestError (req, task, resolve) {
   req.on('error', error => {
@@ -151,7 +189,7 @@ function setupRequestError (req, task, resolve) {
 
 /**
  * @param {http.ClientRequest} req
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
+ * @param {Task} task
  */
 function sendRequestBodySync (req, task) {
   // @ts-ignore here is task.body.length always "falsy" or a string
@@ -169,8 +207,8 @@ function sendRequestBodySync (req, task) {
 
 /**
  * @param {http.IncomingMessage} res
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- * @param {function} resolve
+ * @param {Task} task
+ * @param {(value?: any) => void} resolve
  */
 function setupResolveResponseError (res, task, resolve) {
   res.on('error', error => {
@@ -185,18 +223,8 @@ function setupResolveResponseError (res, task, resolve) {
 
 /**
  * @param {http.IncomingMessage} res
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- */
-function invokeOnHeadersCallback (res, task) {
-  if (task.onHeaders) {
-    task.onHeaders(res)
-  }
-}
-
-/**
- * @param {http.IncomingMessage} res
- * @param {{url: string, method?: string, protocolVersion?: string, headers?: {key: string, value: string | number | string[]}[], body?: path.ParsedPath | string, onHeaders?: function, onBody?: function, onError?: function, fetchBody?: boolean, connectionTimeoutMs?: number}} task
- * @param {function} resolve
+ * @param {Task} task
+ * @param {(value?: any) => void} resolve
  */
 function setupResolveResponseBody (res, task, resolve) {
   if (!task.fetchBody) {
@@ -251,7 +279,7 @@ function setupResolveResponseBody (res, task, resolve) {
     }
 
     let $ = cheerio.load(rawBody)
-    task.onBody(rawBody, $)
+    addMessages(task.onBody(rawBody, $), task)
     resolve()
   })
 }
