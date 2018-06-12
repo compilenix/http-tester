@@ -276,7 +276,37 @@ class Config {
           }
         ],
         fetchBody: true,
+        headerPolicies: [
+          { name: 'IsSuccessStatusCode', enabled: false },
+          { name: 'IsLastModifiedValidDate', enabled: false }
+        ],
         bodyPolicies: [{ name: 'IsGreaterThan3k', enabled: false }],
+        /**
+         * @function
+         * @param {http.IncomingMessage} res
+         * @returns {string[] | void}
+         */
+        onHeaders: res => {
+          let errorMessages = ['']
+          if (res.statusCode !== 723) errorMessages.push(`Status code is not equal to "723", got \`${res.statusCode}\``)
+          if (res.headers['etag'] !== undefined) errorMessages.push(`\`etag\` should not be present, but it is and has the value \`${res.headers['etag']}\``)
+          if (res.headers['strict-transport-security'] !== 'max-age=15768000; includeSubDomains; preload') errorMessages.push(`\`strict-transport-security\` is not present or is not equal to "max-age=15768000; includeSubDomains; preload", got \`${res.headers['strict-transport-security']}\``)
+          if (res.headers['content-security-policy'] !== `default-src 'self' data: 'unsafe-inline' 'unsafe-eval' *.compilenix.org compilenix.org dharma.no-trust.org *.googleapis.com *.gstatic.com *.google.com *.gravatar.com code.jquery.com; frame-ancestors 'self' ; form-action 'self' ; upgrade-insecure-requests; block-all-mixed-content; reflected-xss block; referrer no-referrer;`) errorMessages.push(`\`content-security-policy\` is not set or is not equal to "default-src 'self' data: 'unsafe-inline' 'unsafe-eval' *.compilenix.org compilenix.org dharma.no-trust.org *.googleapis.com *.gstatic.com *.google.com *.gravatar.com code.jquery.com; frame-ancestors 'self' ; form-action 'self' ; upgrade-insecure-requests; block-all-mixed-content; reflected-xss block; referrer no-referrer;", got \`${res.headers['content-security-policy']}\``)
+
+          return errorMessages
+        },
+        /**
+         * @function
+         * @param {string} raw
+         * @param {CheerioStatic} $
+         * @returns {string[] | void}
+         */
+        onBody: (raw, $) => {
+          let errorMessages = ['']
+          if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20)}\``)
+          if ($('title').text() !== '723 Tricky') errorMessages.push(`Title does not match "723 Tricky", got \`${$('title').text()}\``)
+          return errorMessages
+        },
         /**
          * @function
          * @description here you handle any kind of error
