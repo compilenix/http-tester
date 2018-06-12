@@ -21,13 +21,11 @@ class Config {
 
     /** @type {{key: string, value: string | number | string[]}[]} */
     this.defaultHeaders = [
-      { key: 'User-Agent', value: 'Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0' },
-      { key: 'Accept', value: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
-      { key: 'Accept-Language', value: 'en-US,en;q=0.7,de-DE,de;q=0.3' },
-      { key: 'Accept-Encoding', value: 'identity;q=0.9, deflate;q=0.5, gzip;q=0.1, *;q=0' },
-      { key: 'DNT', value: 1 },
-      { key: 'Upgrade-Insecure-Requests', value: 1 },
-      { key: 'Cache-Control', value: 'max-age=0' }
+      { key: 'User-Agent', value: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36' },
+      { key: 'Accept', value: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' },
+      { key: 'Accept-Language', value: 'en,de;q=0.9' },
+      { key: 'Accept-Encoding', value: 'gzip, deflate, identity;q=0.2, *;q=0' },
+      { key: 'Upgrade-Insecure-Requests', value: 1 }
     ]
     this.defaultMethod = 'GET'
     this.defaultConnectionTimeoutMs = 10000
