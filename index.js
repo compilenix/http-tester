@@ -275,7 +275,7 @@ function setupResolveResponseBody (res, task, resolve) {
   })
 
   res.on('end', async () => {
-    if (!task.onBody) {
+    if (!task.fetchBody) {
       resolve()
       return
     }
@@ -299,7 +299,7 @@ function setupResolveResponseBody (res, task, resolve) {
     }
 
     let $ = cheerio.load(rawBody)
-    addMessages(task.onBody(rawBody, $), task)
+    if (task.onBody) addMessages(task.onBody(rawBody, $), task)
     resolve()
   })
 }
