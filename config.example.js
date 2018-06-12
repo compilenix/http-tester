@@ -220,7 +220,21 @@ class Config {
     }]
 
     this.defaultHeaderPolicies = [
-      'IsSuccessStatusCode'
+      'IsSuccessStatusCode',
+      'IsContentEncodedGzip',
+      'IsContentTypeHtml',
+      'IsLastModifiedValidDate',
+      'IsX-UA-CompatibleSet',
+      'IsExpiresSet',
+      'IsCacheControlSet',
+      'IsContentTypeSniffingSet',
+      'IsXSSProtectionSet',
+      'IsFrameOptionsSet',
+      'IsRefererPolicySet',
+      'IsContentSecurityPolicySet',
+      'IsStrictTransportSecuritySet',
+      'IsServerHeaderNotPresent',
+      'IsXPoweredByHeaderNotPresent'
     ]
 
     /**
