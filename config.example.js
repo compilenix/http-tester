@@ -314,7 +314,7 @@ class Config {
          * @param {Error} error
          */
         onError: error => {
-          console.dir(error)
+          console.error(error)
         }
       }
     ]

@@ -137,7 +137,6 @@ function addMessages (messages, task, level = 'error') {
  */
 function handleHttpClientResponse (res, task, resolve, reject) {
   setupResolveResponseError(res, task, resolve)
-  // TODO: remove or do central logging
   validateResponseHeaderPolicies(res, task)
   if (task.onHeaders) {
     addMessages(task.onHeaders(res), task, task.url)
@@ -270,7 +269,11 @@ function setupRequest (req, task, resolve) {
  */
 function setupRequestError (req, task, resolve) {
   req.on('error', error => {
-    if (task.onError) task.onError(error)
+    if (task.onError && typeof task.onError === 'function') {
+      task.onError(error)
+    } else {
+      console.error(error)
+    }
     resolve()
   })
 }
@@ -285,7 +288,7 @@ function sendRequestBodySync (req, task) {
     try {
       req.write(task.body)
     } catch (error) {
-      console.dir(error)
+      console.error(error)
       // TODO: handle?
     }
   } else {
@@ -300,10 +303,10 @@ function sendRequestBodySync (req, task) {
  */
 function setupResolveResponseError (res, task, resolve) {
   res.on('error', error => {
-    if (task.onError) {
+    if (task.onError && typeof task.onError === 'function') {
       task.onError(error)
     } else {
-      console.dir(error)
+      console.error(error)
     }
     resolve()
   })
@@ -427,10 +430,10 @@ async function run () {
           }
           break
         case '2.0':
-          console.error(new Error('Not implemented'))
+          console.error(new Error('HTTP/2 is not implemented'))
           break
         default:
-          console.error(new Error('Not implemented'))
+          console.error(new Error('Requested HTTP protocol version is not implemented, expected one of: 1.0, 1.1'))
           // TODO: error
           break
       }
