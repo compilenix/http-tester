@@ -42,7 +42,6 @@ this.tasks = [
      */
     onHeaders: res => {
       // console.dir(res.headers)
-      return {isSuccessStatusCode: true}
     },
     /**
      * @function
@@ -60,7 +59,7 @@ this.tasks = [
      * @param {Error} error
      */
     onError: error => {
-      console.dir(error)
+      console.error(error)
     }
   }
 ]
