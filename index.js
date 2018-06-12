@@ -21,6 +21,9 @@ let config = require('./config.js')
 let slack = new Slack()
 /** @type {{message: string, ts: number, color: string}[]} */
 let messagesToSend = []
+let isFirstMessageOfItem = true
+let isFirstOveralMessage = true
+
 
 /**
  * @param {number} ms
@@ -65,7 +68,7 @@ async function sendReport () {
   for (let index = 0; index < payloads.length; index++) {
     const payload = payloads[index]
     slack.webhook(payload, (err, response) => {
-      if (err) console.log(err, response)
+      if (err) console.error(err, response)
     })
     await sleep(1000) // comply to slack api rate limiting
   }
@@ -78,6 +81,22 @@ async function sendReport () {
  * @param {string} level
  */
 function addMessage (message, method, uri, level = 'error') {
+  if (!message || message.length === 0) return
+  if (config.enableConsoleLog) {
+    if (isFirstMessageOfItem) {
+      let newLine = '\n'
+      if (isFirstOveralMessage) newLine = ''
+      console.log(`${newLine}${method} ${uri}`)
+    }
+
+    console.log(`[${new Date().toUTCString()}] ${method} ${uri} -> ${message}`)
+    isFirstMessageOfItem = false
+  }
+
+  if (!config.enableSlack) {
+    return
+  }
+
   let color = '#d50200' // error
   switch (level) {
     case 'warn':
@@ -116,7 +135,6 @@ function addMessages (messages, task, level = 'error') {
 function handleHttpClientResponse (res, task, resolve, reject) {
   setupResolveResponseError(res, task, resolve)
   // TODO: remove or do central logging
-  console.log(`${task.url} -> ${res.statusCode}`)
   if (task.onHeaders) {
     addMessages(task.onHeaders(res), task, task.url)
   }
@@ -294,6 +312,7 @@ async function run () {
       continue
     }
 
+    isFirstMessageOfItem = true
     const url = new URL(task.url)
     let isEncrypted = url.protocol === 'https:'
     let method = task.method || config.defaultMethod || 'GET'
@@ -344,6 +363,7 @@ async function run () {
           break
       }
     })
+    isFirstOveralMessage = false
   }
 }
 
@@ -351,5 +371,5 @@ async function run () {
   slack.setWebhook(config.slackWebHookUri)
   await run()
   await sendReport()
-  console.log('done')
+  if (config.enableConsoleLog) console.log('done')
 })()
