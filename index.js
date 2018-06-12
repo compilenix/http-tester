@@ -325,13 +325,15 @@ async function run () {
       task.body = await fs.readFile(`${parsedPath.dir}${path.sep}${parsedPath.base}`, { encoding: 'utf8' })
     }
 
-    let clientRequest = {
+    let requestOptions = {
       timeout: task.connectionTimeoutMs || config.defaultConnectionTimeoutMs || 2500,
+      protocol: url.protocol,
       href: url.href,
       method: method,
       host: url.host,
       hostname: url.hostname,
       pathname: url.pathname,
+      path: `${url.pathname}${url.search}`,
       search: url.search,
       hash: url.hash
     }
@@ -341,13 +343,13 @@ async function run () {
         case '1.0':
         case '1.1':
           if (isEncrypted) {
-            let req = https.request(clientRequest, res => {
+            let req = https.request(requestOptions, res => {
               handleHttpClientResponse(res, task, resolve, reject)
             })
             setupRequest(req, task, resolve)
             sendRequestBodySync(req, task)
           } else {
-            let req = http.request(clientRequest, res => {
+            let req = http.request(requestOptions, res => {
               handleHttpClientResponse(res, task, resolve, reject)
             })
             setupRequest(req, task, resolve)
