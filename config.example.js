@@ -264,7 +264,7 @@ class Config {
 
     /** @type {Task[]} */
     this.tasks = [
-      // { url: 'http://www.microsoft.com' }, // minimal example
+      // { url: 'https://www.microsoft.com/en-US/' }, // minimal example
       { // full example
         url: 'https://blog.compilenix.org/code/723',
         headers: [
