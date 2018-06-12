@@ -264,8 +264,9 @@ class Config {
 
     /** @type {Task[]} */
     this.tasks = [
-      // { url: 'https://www.microsoft.com/en-US/' }, // minimal example
+      { enabled: false, url: 'https://www.microsoft.com/en-US/' }, // minimal example
       { // full example
+        enabled: true,
         url: 'https://blog.compilenix.org/code/723',
         headers: [
           // - these headers do overwrite default headers

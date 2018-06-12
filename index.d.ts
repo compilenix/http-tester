@@ -2,6 +2,7 @@
 
 interface Task {
   url: string,
+  enabled?: boolean,
   method?: string,
   protocolVersion?: string,
   headers?: { key: string, value: string | number | string[] }[],

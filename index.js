@@ -376,6 +376,7 @@ function setupResolveResponseBody (res, task, resolve) {
 async function run () {
   for (let index = 0; index < config.tasks.length; index++) {
     const task = config.tasks[index]
+    if (!task.enabled) continue
     if (!task.url) {
       addMessage(`\`uri\` is not present on task (index ${index}): \`\`\`${JSON.stringify(task, null, 4)}\`\`\``, task.method, task.url)
       continue
