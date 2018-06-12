@@ -24,6 +24,9 @@ let messagesToSend = []
 let isFirstMessageOfItem = true
 let isFirstOveralMessage = true
 
+function uniqueArray (arr) {
+  return Array.from(new Set(arr))
+}
 
 /**
  * @param {number} ms
@@ -135,6 +138,7 @@ function addMessages (messages, task, level = 'error') {
 function handleHttpClientResponse (res, task, resolve, reject) {
   setupResolveResponseError(res, task, resolve)
   // TODO: remove or do central logging
+  validateResponseHeaderPolicies(res, task)
   if (task.onHeaders) {
     addMessages(task.onHeaders(res), task, task.url)
   }
@@ -146,17 +150,81 @@ function handleHttpClientResponse (res, task, resolve, reject) {
  * @param {Task} task
  */
 function validateResponseHeaderPolicies (res, task) {
-  const defaultPoliciesToValidate = config.defaultHeaderPolicies.filter(x => !task.headerPolicies.find(y => y === x || y.valueOf() === true))
-  for (let index = 0; index < config.defaultHeaderPolicies.length; index++) {
-    const defaultHeaderPolicyName = config.defaultHeaderPolicies[index]
-
-    if (!defaultPoliciesToValidate.some(x => x === defaultHeaderPolicyName)) continue
-
-    if (config.headerPolicies[defaultHeaderPolicyName]) {
-      /** @type {{ name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}} */
-      const defaultHeaderPolicy = config.headerPolicies[defaultHeaderPolicyName]
-      if (!defaultHeaderPolicy.validate(res)) addMessage(defaultHeaderPolicy.failureMessage(res), task.method || 'GET', task.url)
+  /** @type {{name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}[]} */
+  let defaultPoliciesToValidate = []
+  if (config.defaultHeaderPolicies && config.defaultHeaderPolicies.length > 0) {
+    for (let index = 0; index < config.defaultHeaderPolicies.length; index++) {
+      const policyName = config.defaultHeaderPolicies[index]
+      if (!policyName) continue
+      let policyIndex = config.headerPolicies.findIndex(x => x.name === policyName)
+      if (policyIndex >= 0) {
+        defaultPoliciesToValidate.push(config.headerPolicies[policyIndex])
+      }
     }
+  }
+
+  /** @type {{name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}[]} */
+  let headerPoliciesToValidate = []
+  if (task.headerPolicies && task.headerPolicies.length > 0) {
+    for (let index = 0; index < task.headerPolicies.length; index++) {
+      const policySetting = task.headerPolicies[index]
+      let policyIndex = config.headerPolicies.findIndex(x => x.name === policySetting.name)
+      if (policySetting.enabled && policyIndex >= 0) {
+        headerPoliciesToValidate.push(config.headerPolicies[policyIndex])
+      }
+      if (!policySetting.enabled && defaultPoliciesToValidate.findIndex(x => x.name === policySetting.name) >= 0) {
+        defaultPoliciesToValidate.splice(defaultPoliciesToValidate.findIndex(x => x.name === policySetting.name), 1)
+      }
+    }
+  }
+
+  /** @type {{name: string, validate: (res: http.IncomingMessage) => boolean, failureMessage: (res: http.IncomingMessage) => string}[]} */
+  let policiesToValidate = uniqueArray(defaultPoliciesToValidate.concat(headerPoliciesToValidate))
+  for (let index = 0; index < policiesToValidate.length; index++) {
+    const headerPolicy = policiesToValidate[index]
+    if (!headerPolicy.validate(res)) addMessage(headerPolicy.failureMessage(res), task.method || 'GET', task.url)
+  }
+}
+
+/**
+ * @param {string} raw
+ * @param {CheerioStatic} $
+ * @param {Task} task
+ */
+function validateResponseBodyPolicies (raw, $, task) {
+  /** @type {{name: string, validate: (raw: string, $: CheerioStatic) => boolean, failureMessage: (raw: string, $: CheerioStatic) => string}[]} */
+  let defaultPoliciesToValidate = []
+  if (config.defaultBodyPolicies && config.defaultBodyPolicies.length > 0) {
+    for (let index = 0; index < config.defaultBodyPolicies.length; index++) {
+      const policyName = config.defaultBodyPolicies[index]
+      if (!policyName) continue
+      let policyIndex = config.bodyPolicies.findIndex(x => x.name === policyName)
+      if (policyIndex >= 0) {
+        defaultPoliciesToValidate.push(config.bodyPolicies[policyIndex])
+      }
+    }
+  }
+
+  /** @type {{name: string, validate: (raw: string, $: CheerioStatic) => boolean, failureMessage: (raw: string, $: CheerioStatic) => string}[]} */
+  let bodyPoliciesToValidate = []
+  if (task.bodyPolicies && task.bodyPolicies.length > 0) {
+    for (let index = 0; index < task.bodyPolicies.length; index++) {
+      const policySetting = task.bodyPolicies[index]
+      let policyIndex = config.bodyPolicies.findIndex(x => x.name === policySetting.name)
+      if (policySetting.enabled && policyIndex >= 0) {
+        bodyPoliciesToValidate.push(config.bodyPolicies[policyIndex])
+      }
+      if (!policySetting.enabled && defaultPoliciesToValidate.findIndex(x => x.name === policySetting.name) >= 0) {
+        defaultPoliciesToValidate.splice(defaultPoliciesToValidate.findIndex(x => x.name === policySetting.name), 1)
+      }
+    }
+  }
+
+  /** @type {{name: string, validate: (raw: string, $: CheerioStatic) => boolean, failureMessage: (raw: string, $: CheerioStatic) => string}[]} */
+  let policiesToValidate = uniqueArray(defaultPoliciesToValidate.concat(bodyPoliciesToValidate))
+  for (let index = 0; index < policiesToValidate.length; index++) {
+    const bodyPolicy = policiesToValidate[index]
+    if (!bodyPolicy.validate(raw, $)) addMessage(bodyPolicy.failureMessage(raw, $), task.method || 'GET', task.url)
   }
 }
 
@@ -299,6 +367,7 @@ function setupResolveResponseBody (res, task, resolve) {
     }
 
     let $ = cheerio.load(rawBody)
+    validateResponseBodyPolicies(rawBody, $, task)
     if (task.onBody) addMessages(task.onBody(rawBody, $), task)
     resolve()
   })
