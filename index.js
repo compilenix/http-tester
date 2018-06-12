@@ -13,9 +13,9 @@ const Slack = require('slack-node')
 const cheerio = require('cheerio')
 const StreamToString = require('stream-to-string')
 
-// if (!fs.existsSync('./config.js')) {
-fs.copySync('./config.example.js', './config.js')
-// }
+if (!fs.existsSync('./config.js')) {
+  fs.copySync('./config.example.js', './config.js')
+}
 
 let config = require('./config.js')
 let slack = new Slack()
