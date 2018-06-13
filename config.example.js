@@ -25,7 +25,8 @@ class Config {
       { key: 'Accept', value: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' },
       { key: 'Accept-Language', value: 'en,de;q=0.9' },
       { key: 'Accept-Encoding', value: 'gzip, deflate, identity;q=0.2, *;q=0' },
-      { key: 'Upgrade-Insecure-Requests', value: 1 }
+      { key: 'Upgrade-Insecure-Requests', value: 1 },
+      { key: 'From', value: 'user@example.com' } // See: https://tools.ietf.org/html/rfc7231#section-5.5.1
     ]
     this.defaultMethod = 'GET'
     this.defaultConnectionTimeoutMs = 10000
