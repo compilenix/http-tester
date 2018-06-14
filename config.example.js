@@ -30,6 +30,7 @@ class Config {
     ]
     this.defaultMethod = 'GET'
     this.defaultConnectionTimeoutMs = 10000
+    this.waitBetweenRequestsMs = 1000
     this.defaultProtocolVersion = '1.1'
 
     /**

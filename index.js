@@ -274,7 +274,7 @@ function setupRequestError (req, task, resolve) {
     } else {
       console.error(error)
     }
-    resolve()
+    internalPromiseResolver(resolve)
   })
 }
 
@@ -308,7 +308,7 @@ function setupResolveResponseError (res, task, resolve) {
     } else {
       console.error(error)
     }
-    resolve()
+    internalPromiseResolver(resolve)
   })
 }
 
@@ -320,7 +320,7 @@ function setupResolveResponseError (res, task, resolve) {
 function setupResolveResponseBody (res, task, resolve) {
   if (!task.fetchBody) {
     res.on('end', () => {
-      resolve()
+      internalPromiseResolver(resolve)
     })
     res.emit('end')
     return
@@ -347,7 +347,7 @@ function setupResolveResponseBody (res, task, resolve) {
 
   res.on('end', async () => {
     if (!task.fetchBody) {
-      resolve()
+      internalPromiseResolver(resolve)
       return
     }
 
@@ -372,8 +372,15 @@ function setupResolveResponseBody (res, task, resolve) {
     let $ = cheerio.load(rawBody)
     validateResponseBodyPolicies(rawBody, $, task)
     if (task.onBody) addMessages(task.onBody(rawBody, $), task)
-    resolve()
+    internalPromiseResolver(resolve)
   })
+}
+
+/**
+ * @param {(value?: any) => void} resolve
+ */
+function internalPromiseResolver (resolve) {
+  sleep(config.waitBetweenRequestsMs || 1000).then(() => resolve())
 }
 
 async function run () {
