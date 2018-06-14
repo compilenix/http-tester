@@ -58,9 +58,7 @@ this.tasks = [
      * @description here you handle any kind of error
      * @param {Error} error
      */
-    onError: error => {
-      console.error(error)
-    }
+    onError: error => console.error(error)
   }
 ]
 ```
@@ -152,9 +150,7 @@ module.exports = [
      * @description here you handle any kind of error
      * @param {Error} error
      */
-    onError: error => {
-      console.error(error)
-    }
+    onError: error => console.error(error)
   }
 ]
 

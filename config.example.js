@@ -156,9 +156,7 @@ class Config {
     },
     {
       name: 'IsContentSecurityPolicySet',
-      validate: res => {
-        return typeof res.headers['content-security-policy'] === 'string' && res.headers['content-security-policy'].length > 10
-      },
+      validate: res => typeof res.headers['content-security-policy'] === 'string' && res.headers['content-security-policy'].length > 10,
       failureMessage: res => {
         if (res.headers['content-security-policy']) {
           return `\`content-security-policy\` is set but it has a wrong value, expected something lengthier than 10 characters but got \`${res.headers['content-security-policy']}\``
@@ -168,9 +166,7 @@ class Config {
     },
     {
       name: 'IsStrictTransportSecuritySet',
-      validate: res => {
-        return typeof res.headers['strict-transport-security'] === 'string' && res.headers['strict-transport-security'].length > 8
-      },
+      validate: res => typeof res.headers['strict-transport-security'] === 'string' && res.headers['strict-transport-security'].length > 8,
       failureMessage: res => {
         if (res.headers['strict-transport-security']) {
           return `\`strict-transport-security\` is set but it has a wrong value, expected something lengthier than 8 characters but got \`${res.headers['strict-transport-security']}\``
@@ -180,9 +176,7 @@ class Config {
     },
     {
       name: 'IsContentSecurityPolicyReportingOnlySet',
-      validate: res => {
-        return typeof res.headers['content-security-policy-report-only'] === 'string' && res.headers['content-security-policy-report-only'].length > 23
-      },
+      validate: res => typeof res.headers['content-security-policy-report-only'] === 'string' && res.headers['content-security-policy-report-only'].length > 23,
       failureMessage: res => {
         if (res.headers['content-security-policy-report-only']) {
           return `\`content-security-policy-report-only\` is set but it has a wrong value, expected something lengthier than 23 characters but got \`${res.headers['content-security-policy-report-only']}\``
@@ -192,12 +186,8 @@ class Config {
     },
     {
       name: 'IsServerHeaderNotPresent',
-      validate: res => {
-        return !res.headers['server']
-      },
-      failureMessage: res => {
-        return `\`server\` is set but it should not be set, got \`${res.headers['server']}\``
-      }
+      validate: res => !res.headers['server'],
+      failureMessage: res => `\`server\` is set but it should not be set, got \`${res.headers['server']}\``
     },
     {
       name: 'IsXPoweredByHeaderNotPresent',
@@ -214,9 +204,7 @@ class Config {
        * @param {http.IncomingMessage} res
        * @returns {string}
        */
-      failureMessage: res => {
-        return `\`x-powered-by\` is set but it should not be set, got \`${res.headers['x-powered-by']}\``
-      }
+      failureMessage: res => `\`x-powered-by\` is set but it should not be set, got \`${res.headers['x-powered-by']}\``
     }]
 
     this.defaultHeaderPolicies = [
@@ -248,9 +236,7 @@ class Config {
        * @param {CheerioStatic} $
        * @returns {boolean}
        */
-      validate: (raw, $) => {
-        return raw.length >= 3072
-      },
+      validate: (raw, $) => raw.length >= 3072,
       /**
        * @function
        * @param {string} raw
@@ -316,9 +302,7 @@ class Config {
          * @description here you handle any kind of error
          * @param {Error} error
          */
-        onError: error => {
-          console.error(error)
-        }
+        onError: error => console.error(error)
       }
     ]
   }
