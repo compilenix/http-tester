@@ -6,11 +6,12 @@
   "scripts": {
     "start": "./node.sh index.js",
     "clean": "rm -rf node_modules",
+    "init": "./init.sh",
     "test": "node_modules/standard/bin/cmd.js"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@git.compilenix.org:2225/Compilenix/http-tester.git"
+    "url": "https://git.compilenix.org/Compilenix/http-tester.git"
   },
   "keywords": [
     "http",
@@ -27,7 +28,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "standard": "^11.0.1",
     "typings": "^2.1.1",
-    "@types/node": "^10.3.2"
+    "@types/node": "^10.3.3"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
