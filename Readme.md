@@ -91,6 +91,7 @@ this.tasks = [
 const configFiles = fs.readdirSync('configs')
 for (let index = 0; index < configFiles.length; index++) {
   const file = configFiles[index]
+  if (!file.endsWith('.js')) continue
   const tasksFromFile = require(`./configs${path.sep}${file}`)
   for (let index = 0; index < tasksFromFile.length; index++) {
     const task = tasksFromFile[index]
@@ -155,3 +156,5 @@ module.exports = [
 ]
 
 ```
+
+You may want to put those tasks under version control, too. just create a git repo into the `configs` folder and add a git remote, this will not collide with anyting in this project.
