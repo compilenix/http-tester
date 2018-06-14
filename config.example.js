@@ -280,7 +280,8 @@ class Config {
         fetchBody: true,
         headerPolicies: [
           { name: 'IsSuccessStatusCode', enabled: false },
-          { name: 'IsLastModifiedValidDate', enabled: false }
+          { name: 'IsLastModifiedValidDate', enabled: false },
+          { name: 'IsExpiresSet', enabled: false }
         ],
         bodyPolicies: [{ name: 'IsGreaterThan3k', enabled: false }],
         /**
