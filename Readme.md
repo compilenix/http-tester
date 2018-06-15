@@ -142,7 +142,7 @@ module.exports = [
      */
     onBody: (raw, $) => {
       let errorMessages = ['']
-      if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20)}\``)
+      if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20).replace(/\n/g, '')}\``)
       if ($('title').text() !== 'Compilenix.org') errorMessages.push(`Title does not match "Compilenix.org", got \`${$('title').text()}\``)
       return errorMessages
     },

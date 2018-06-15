@@ -293,7 +293,7 @@ class Config {
          */
         onBody: (raw, $) => {
           let errorMessages = ['']
-          if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20)}\``)
+          if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20).replace(/\n/g, '')}\``)
           if ($('title').text() !== '723 Tricky') errorMessages.push(`Title does not match "723 Tricky", got \`${$('title').text()}\``)
           return errorMessages
         },
