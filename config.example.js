@@ -206,6 +206,23 @@ class Config {
        * @returns {string}
        */
       failureMessage: res => `\`x-powered-by\` is set but it should not be set, got \`${res.headers['x-powered-by']}\``
+    },
+    {
+      name: 'IsETagNotPresent',
+      /**
+       * @function
+       * @param {http.IncomingMessage} res
+       * @returns {boolean}
+       */
+      validate: res => {
+        return !res.headers['etag']
+      },
+      /**
+       * @function
+       * @param {http.IncomingMessage} res
+       * @returns {string}
+       */
+      failureMessage: res => `\`etag\` should not be present, but it is and has the value \`${res.headers['etag']}\``
     }]
 
     this.defaultHeaderPolicies = [
@@ -223,7 +240,8 @@ class Config {
       'IsContentSecurityPolicySet',
       'IsStrictTransportSecuritySet',
       'IsServerHeaderNotPresent',
-      'IsXPoweredByHeaderNotPresent'
+      'IsXPoweredByHeaderNotPresent',
+      'IsETagNotPresent'
     ]
 
     /**
@@ -231,24 +249,35 @@ class Config {
      */
     this.bodyPolicies = [{
       name: 'IsGreaterThan3k',
+      validate: (raw, $) => raw.length >= 3072,
+      failureMessage: (raw, $) => `Response body is not greater than 3k, we got ${raw.length} bytes.`
+    },
+    {
+      name: 'StartsWithHtml5doctype',
+      validate: (raw, $) => raw.startsWith('<!DOCTYPE html>'),
+      failureMessage: (raw, $) => `Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20).replace(/\n/g, '')}\``
+    },
+    {
+      name: 'IsGreaterThan512b',
       /**
        * @function
        * @param {string} raw
        * @param {CheerioStatic} $
        * @returns {boolean}
        */
-      validate: (raw, $) => raw.length >= 3072,
+      validate: (raw, $) => raw.length >= 512,
       /**
        * @function
        * @param {string} raw
        * @param {CheerioStatic} $
        * @returns {string}
        */
-      failureMessage: (raw, $) => `Response body is not greater than 3k, we got ${raw.length} bytes.`
+      failureMessage: (raw, $) => `Response body is not greater than 512 bytes, we got ${raw.length} bytes.`
     }]
 
     this.defaultBodyPolicies = [
-      'IsGreaterThan3k'
+      'IsGreaterThan3k',
+      'StartsWithHtml5doctype'
     ]
 
     /** @type {Task[]} */
@@ -294,7 +323,6 @@ class Config {
          */
         onBody: (raw, $) => {
           let errorMessages = ['']
-          if (!raw.startsWith('<!DOCTYPE html>')) errorMessages.push(`Document body does not start with "<!DOCTYPE html>", got \`${raw.substr(0, 20).replace(/\n/g, '')}\``)
           if ($('title').text() !== '723 Tricky') errorMessages.push(`Title does not match "723 Tricky", got \`${$('title').text()}\``)
           return errorMessages
         },
