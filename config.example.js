@@ -11,6 +11,7 @@ class Config {
     this.version = 1
 
     this.enableConsoleLog = true
+    this.consoleVerbose = false
     this.enableSlack = false
     this.slackWebHookUri = 'https://hooks.slack.com/services/xxxxxx/xxxxxx/xxxxxx'
     this.slackChannel = ''

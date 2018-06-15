@@ -181,6 +181,7 @@ function validateResponseHeaderPolicies (res, task) {
   let policiesToValidate = uniqueArray(defaultPoliciesToValidate.concat(headerPoliciesToValidate))
   for (let index = 0; index < policiesToValidate.length; index++) {
     const headerPolicy = policiesToValidate[index]
+    if (config.consoleVerbose) console.log(`Testing header policy ${headerPolicy.name} for ${task.url}`)
     if (!headerPolicy.validate(res)) addMessage(headerPolicy.failureMessage(res), task.method || 'GET', task.url)
   }
 }
@@ -223,6 +224,7 @@ function validateResponseBodyPolicies (raw, $, task) {
   let policiesToValidate = uniqueArray(defaultPoliciesToValidate.concat(bodyPoliciesToValidate))
   for (let index = 0; index < policiesToValidate.length; index++) {
     const bodyPolicy = policiesToValidate[index]
+    if (config.consoleVerbose) console.log(`Testing body policy ${bodyPolicy.name} for ${task.url}`)
     if (!bodyPolicy.validate(raw, $)) addMessage(bodyPolicy.failureMessage(raw, $), task.method || 'GET', task.url)
   }
 }
