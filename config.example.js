@@ -1,5 +1,7 @@
 /// <reference path="index.d.ts" />
 
+const fs = require('fs-extra')
+
 /* eslint-disable no-unused-vars */
 const path = require('path')
 const http = require('http')
@@ -334,6 +336,21 @@ class Config {
         onError: error => console.error(error)
       }
     ]
+
+    if (!fs.existsSync('configs')) {
+      fs.mkdirSync('configs')
+    }
+
+    const configFiles = fs.readdirSync('configs')
+    for (let index = 0; index < configFiles.length; index++) {
+      const file = configFiles[index]
+      if (!file.endsWith('.js')) continue
+      const tasksFromFile = require(`./configs${path.sep}${file}`)
+      for (let index = 0; index < tasksFromFile.length; index++) {
+        const task = tasksFromFile[index]
+        this.tasks.push(task)
+      }
+    }
   }
 }
 
