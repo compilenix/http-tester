@@ -20,16 +20,6 @@
   ],
   "author": "compilenix@gmail.com",
   "license": "MIT",
-  "devDependencies": {
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "standard": "^11.0.1",
-    "typings": "^2.1.1",
-    "@types/node": "^10.3.3"
-  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "fs-extra": "^6.0.1",
@@ -37,5 +27,14 @@
     "punycode": "^2.1.1",
     "slack-node": "^0.1.8",
     "stream-to-string": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.11.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "standard": "^12.0.1"
   }
 }
