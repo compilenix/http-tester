@@ -1,14 +1,14 @@
 /// <reference path="index.d.ts" />
+'use-strict'
 
 const http = require('http')
 const https = require('https')
-const { URL } = require('url')
+const { URL: Url } = require('url')
 const path = require('path')
 const zlib = require('zlib')
 const { Readable } = require('stream')
 
 const fs = require('fs-extra')
-const Slack = require('slack-node')
 // const punycode = require('./node_modules/punycode')
 const cheerio = require('cheerio')
 const StreamToString = require('stream-to-string')
@@ -18,7 +18,7 @@ if (!fs.existsSync('./config.js')) {
 }
 
 let config = require('./config.js')
-let slack = new Slack()
+const packageJson = require('./package.json')
 /** @type {{message: string, ts: number, color: string}[]} */
 let messagesToSend = []
 let isFirstMessageOfItem = true
@@ -68,11 +68,44 @@ async function sendReport () {
     }
   }
 
+  async function sendWebook (payload) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = JSON.stringify(payload, /* replacer */ null, /* space */ 0)
+        const url = new Url(config.slackWebHookUri)
+        const request = https.request({
+          timeout: 3000,
+          protocol: 'https:',
+          method: 'POST',
+          host: url.host,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length,
+            'User-Agent': `${packageJson.name}/${packageJson.version} (${packageJson.repository.url}) admin contact: ${config.adminContact}`,
+            'Accept': 'application/json, text/json;q=0.9, */*;q=0',
+            'Accept-Language': 'en',
+            'Accept-Encoding': 'gzip, deflate, identity;q=0.2, *;q=0',
+            'From': config.adminContact // See: https://tools.ietf.org/html/rfc7231#section-5.5.1
+          },
+          hostname: url.hostname,
+          path: `${url.pathname}${url.search}`,
+          // @ts-ignore
+          rejectUnauthorized: config.rejectUnauthorizedSsl
+        }, async res => {
+          resolve(res)
+        })
+
+        request.end(data)
+      } catch (error) {
+        if (error) console.error(error)
+        reject(error)
+      }
+    })
+  }
+
   for (let index = 0; index < payloads.length; index++) {
     const payload = payloads[index]
-    slack.webhook(payload, (err, response) => {
-      if (err) console.error(err, response)
-    })
+    sendWebook(payload)
     await sleep(1000) // comply to slack api rate limiting
   }
 }
@@ -395,7 +428,7 @@ async function run () {
     }
 
     isFirstMessageOfItem = true
-    const url = new URL(task.url)
+    const url = new Url(task.url)
     let isEncrypted = url.protocol === 'https:'
     let method = task.method || config.defaultMethod || 'GET'
 
@@ -452,7 +485,6 @@ async function run () {
 }
 
 (async () => {
-  slack.setWebhook(config.slackWebHookUri)
   await run()
   await sendReport()
   if (config.enableConsoleLog) console.log('done')

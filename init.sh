@@ -5,8 +5,7 @@ export NVM_DIR="$(realpath $HOME/.nvm)"
   echo "you need nvm (https://github.com/creationix/nvm)"; exit 1
 }
 
+rm -r node_modules
+
 nvm i
-npm install
-npm rebuild
-nvm use default
-node_modules/typings/dist/bin.js i
+npm i

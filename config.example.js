@@ -10,7 +10,7 @@ const cheerio = require('cheerio')
 
 class Config {
   constructor () {
-    this.version = 1
+    this.adminContact = 'admin@example.com'
 
     this.enableConsoleLog = true
     this.consoleVerbose = false
