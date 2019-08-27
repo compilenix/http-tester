@@ -8,4 +8,4 @@ export NVM_DIR="$(realpath $HOME/.nvm)"
 rm -r node_modules
 
 nvm i
-npm i
+npm ci --production
