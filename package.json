@@ -23,7 +23,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "fs-extra": "^8.1.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "punycode": "^2.1.1",
     "stream-to-string": "^1.2.0"
   },
