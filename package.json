@@ -7,7 +7,9 @@
     "start": "./node.sh index.js",
     "clean": "rm -rf node_modules",
     "init": "./init.sh",
-    "test": "node_modules/standard/bin/cmd.js"
+    "test": "node_modules/standard/bin/cmd.js",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -23,9 +25,10 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "fs-extra": "^8.1.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "punycode": "^2.1.1",
-    "stream-to-string": "^1.2.0"
+    "stream-to-string": "^1.2.0",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {
     "eslint": "^6.2.2",
@@ -35,5 +38,6 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "standard": "^14.0.2"
-  }
+  },
+  "snyk": true
 }
