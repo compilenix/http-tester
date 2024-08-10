@@ -21,7 +21,7 @@
   "author": "compilenix@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "^1.0.0",
     "fs-extra": "^8.1.0",
     "moment": "^2.24.0",
     "punycode": "^2.1.1",
